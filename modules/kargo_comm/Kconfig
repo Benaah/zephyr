@@ -1,0 +1,82 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Kargo Chain
+
+menuconfig KARGO_COMM
+	bool "Kargo communication modules"
+	help
+	  Enable Kargo Chain communication and networking modules
+
+if KARGO_COMM
+
+config KARGO_MQTT
+	bool "Kargo MQTT client wrapper"
+	depends on NETWORKING
+	depends on NET_TCP
+	depends on MQTT_LIB
+	help
+	  Enable Kargo MQTT client wrapper for AWS IoT Core
+
+if KARGO_MQTT
+
+config KARGO_MQTT_KEEPALIVE_SEC
+	int "MQTT keepalive interval (seconds)"
+	default 60
+	help
+	  MQTT keepalive interval in seconds
+
+config KARGO_MQTT_RECONNECT_DELAY_MS
+	int "MQTT reconnection delay (milliseconds)"
+	default 5000
+	help
+	  Delay between MQTT reconnection attempts
+
+config KARGO_MQTT_BUFFER_SIZE
+	int "MQTT buffer size"
+	default 512
+	help
+	  Size of MQTT TX/RX buffers
+
+endif # KARGO_MQTT
+
+config KARGO_MODEM_NRF9160
+	bool "nRF9160 modem support"
+	depends on NRF_MODEM_LIB
+	help
+	  Enable support for nRF9160 integrated LTE-M/NB-IoT modem
+
+config KARGO_MODEM_AT
+	bool "External AT modem support"
+	depends on MODEM
+	help
+	  Enable support for external AT-command based modems
+
+config KARGO_GNSS
+	bool "GNSS support"
+	help
+	  Enable GNSS functionality
+
+if KARGO_GNSS
+
+choice KARGO_GNSS_TYPE
+	prompt "GNSS type"
+	default KARGO_GNSS_NRF9160
+
+config KARGO_GNSS_NRF9160
+	bool "nRF9160 integrated GNSS"
+	depends on KARGO_MODEM_NRF9160
+
+config KARGO_GNSS_UBLOX_M10
+	bool "u-blox M10 external GNSS"
+	depends on UART
+
+endchoice
+
+config KARGO_GNSS_TIMEOUT_SEC
+	int "GNSS fix timeout (seconds)"
+	default 120
+	help
+	  Maximum time to wait for GNSS fix
+
+endif # KARGO_GNSS
+
+endif # KARGO_COMM

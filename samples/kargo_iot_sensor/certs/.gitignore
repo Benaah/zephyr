@@ -1,0 +1,11 @@
+# Security - Keep certificates private!
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+device-*
+AmazonRootCA*.pem
+
+# Generated credentials header (contains secrets)
+aws_iot_credentials.h

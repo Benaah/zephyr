@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Kargo Chain
+
+menuconfig KARGO_DRIVERS
+	bool "Kargo custom drivers"
+	help
+	  Enable Kargo Chain custom sensor and peripheral drivers
+
+if KARGO_DRIVERS
+
+# Sensor Drivers
+menu "Sensor Drivers"
+
+config KARGO_SENSOR_SHT4X
+	bool "SHT4x temperature and humidity sensor"
+	depends on I2C
+	select SENSOR
+	help
+	  Enable driver for Sensirion SHT4x temperature and humidity sensor
+
+config KARGO_SENSOR_BMA4XX
+	bool "BMA4xx accelerometer"
+	depends on I2C || SPI
+	select SENSOR
+	help
+	  Enable driver for Bosch BMA4xx series accelerometer
+
+config KARGO_SENSOR_LIS3DH
+	bool "LIS3DH accelerometer wrapper"
+	depends on I2C || SPI
+	select SENSOR
+	select LIS3DH
+	help
+	  Kargo wrapper for STMicro LIS3DH accelerometer
+
+config KARGO_SENSOR_ALS
+	bool "Ambient light sensor"
+	depends on I2C
+	select SENSOR
+	help
+	  Enable driver for ambient light sensor
+
+endmenu
+
+# Utility Modules
+menu "Utility Modules"
+
+config KARGO_POWER_MGMT
+	bool "Kargo power management"
+	depends on PM
+	help
+	  Enable Kargo-specific power management utilities
+
+config KARGO_FLASH_BUFFER
+	bool "Flash buffering for offline data"
+	depends on FLASH
+	depends on NVS
+	help
+	  Enable flash-based circular buffer for sensor data
+
+config KARGO_FLASH_BUFFER_SIZE
+	int "Maximum buffered readings"
+	depends on KARGO_FLASH_BUFFER
+	default 100
+	help
+	  Maximum number of sensor readings to buffer in flash
+
+endmenu
+
+endif # KARGO_DRIVERS

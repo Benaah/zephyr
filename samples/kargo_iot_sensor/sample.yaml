@@ -1,0 +1,39 @@
+sample:
+  name: Kargo IoT Sensor Application
+  description: >
+    Production-ready IoT sensor application for ESP32-S3 with MQTT publishing to AWS IoT Core,
+    offline buffering, power management, and BLE diagnostics.
+
+common:
+  tags:
+    - sensors
+    - mqtt
+    - aws-iot
+    - power-management
+    - ble
+    - wifi
+    - esp32
+
+  integration_platforms:
+    - esp32s3_devkitc
+
+  harness: console
+  harness_config:
+    type: multi_line
+    regex:
+      - "Kargo IoT Sensor Application Starting"
+      - "WiFi connected"
+      - "MQTT connected"
+      - "Reading published successfully"
+
+tests:
+  sample.kargo_iot_sensor.esp32s3:
+    platform_allow: esp32s3_devkitc
+    tags:
+      - sensors
+      - mqtt
+      - wifi
+    extra_args:
+      - CONFIG_WIFI_SSID="TestNetwork"
+      - CONFIG_WIFI_PASSWORD="TestPassword"
+      - CONFIG_AWS_IOT_ENDPOINT="test.iot.amazonaws.com"

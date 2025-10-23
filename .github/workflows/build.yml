@@ -1,0 +1,99 @@
+name: Build and Test KargoPod Firmware
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-esp32s3:
+    runs-on: ubuntu-latest
+    container:
+      image: zephyrprojectrtos/ci:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: kargoos
+
+      - name: Initialize west
+        run: |
+          west init -l kargoos/zephyr
+          west update
+          west zephyr-export
+
+      - name: Build ESP32-S3 Prototype
+        run: |
+          cd kargoos/zephyr/apps/kargopod_app
+          west build -b kargopod_esp32s3 -p auto
+
+      - name: Upload ESP32-S3 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kargopod-esp32s3-firmware
+          path: |
+            kargoos/zephyr/apps/kargopod_app/build/zephyr/zephyr.bin
+            kargoos/zephyr/apps/kargopod_app/build/zephyr/zephyr.elf
+
+  build-nrf9160:
+    runs-on: ubuntu-latest
+    container:
+      image: zephyrprojectrtos/ci:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: kargoos
+
+      - name: Initialize west
+        run: |
+          west init -l kargoos/zephyr
+          west update
+          west zephyr-export
+
+      - name: Build nRF9160 Commercial
+        run: |
+          cd kargoos/zephyr/apps/kargopod_app
+          west build -b kargopod_nrf9160 -p auto
+
+      - name: Upload nRF9160 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kargopod-nrf9160-firmware
+          path: |
+            kargoos/zephyr/apps/kargopod_app/build/zephyr/zephyr.hex
+            kargoos/zephyr/apps/kargopod_app/build/zephyr/zephyr.elf
+            kargoos/zephyr/apps/kargopod_app/build/zephyr/app_update.bin
+
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run checkpatch
+        run: |
+          cd kargoos/zephyr
+          ./scripts/checkpatch.pl --mailback --no-tree -f apps/kargopod_app/src/*.c
+
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: zephyrprojectrtos/ci:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: kargoos
+
+      - name: Initialize west
+        run: |
+          west init -l kargoos/zephyr
+          west update
+          west zephyr-export
+
+      - name: Run unit tests
+        run: |
+          cd kargoos/zephyr
+          west build -b native_posix apps/kargopod_app -t run
